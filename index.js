@@ -41,9 +41,45 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        app.get('/paintings/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const cursor = paintCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
         app.post('/paintings', async (req, res) => {
             const newPainting = req.body;
             const result = await paintCollection.insertOne(newPainting);
+            res.send(result);
+        })
+        app.delete('/paintings/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await paintCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.put('/paintings/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedPainting = req.body;
+
+            const painting = {
+                $set: {
+                    image: updatedPainting.image,
+                    itemName: updatedPainting.itemName,
+                    sub: updatedPainting.sub,
+                    shortDesc: updatedPainting.shortDesc,
+                    price: updatedPainting.price,
+                    rating: updatedPainting.rating,
+                    custom: updatedPainting.custom,
+                    process: updatedPainting.process,
+                }
+            }
+
+            const result = await paintCollection.updateOne(filter, painting, options);
             res.send(result);
         })
 
